@@ -1,0 +1,37 @@
+image: gradle:8.5-jdk17
+
+variables:
+  DOCKER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH:latest
+
+stages:
+  - build
+  - test
+  - docker
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+build:
+  stage: build
+  script:
+    - gradle clean bootJar
+
+test:
+  stage: test
+  script:
+    - gradle test
+
+docker-build:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build -t $DOCKER_IMAGE .
+    - docker push $DOCKER_IMAGE
+  only:
+    - main
