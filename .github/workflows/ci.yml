@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Find java.home in gradle
+        run: grep 'org.gradle.java.home' gradle.properties || echo "Not found"
+
       - name: Check out code
         uses: actions/checkout@v2
 
